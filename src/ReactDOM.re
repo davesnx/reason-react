@@ -1535,18 +1535,19 @@ external createDOMElementVariadic:
   "createElement";
 
 [@mel.module "react/jsx-runtime"]
-external jsxKeyed: (string, domProps, ~key: string=?, unit) => React.element =
+external jsxKeyed: (string, domProps, ~key: string, unit) => React.elementKeyed =
   "jsx";
+
+[@mel.module "react/jsx-runtime"]
+external jsxsKeyed:
+  (string, domProps, ~key: string, unit) => React.elementKeyed =
+  "jsxs";
 
 [@mel.module "react/jsx-runtime"]
 external jsx: (string, domProps) => React.element = "jsx";
 
 [@mel.module "react/jsx-runtime"]
 external jsxs: (string, domProps) => React.element = "jsxs";
-
-[@mel.module "react/jsx-runtime"]
-external jsxsKeyed: (string, domProps, ~key: string=?, unit) => React.element =
-  "jsxs";
 
 module Server = {
   [@mel.module "react-dom/server"]

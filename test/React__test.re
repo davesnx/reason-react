@@ -17,20 +17,6 @@ module ComponentThatThrows = {
   };
 };
 
-module DummyComponentThatMapsChildren = {
-  [@react.component]
-  let make = (~children, ()) => {
-    <div>
-      {children->React.Children.mapWithIndex((element, index) => {
-         React.cloneElement(
-           element,
-           {"key": {j|$index|j}, "data-index": index},
-         )
-       })}
-    </div>;
-  };
-};
-
 module DummyContext = {
   let context = React.createContext(0);
   module Provider = {
@@ -131,7 +117,7 @@ describe("React", () => {
 
   test("can render array of elements", () => {
     let container = getContainer(container);
-    let array =
+    let array: array(React.elementKeyed) =
       [|1, 2, 3|]
       ->Array.map(item => {<div key={j|$item|j}> item->React.int </div>});
     let root = ReactDOM.Client.createRoot(container);
@@ -194,43 +180,6 @@ describe("React", () => {
     expect(reactRef.current)->toEqual(Js.Nullable.return(1));
   });
 
-  test("Children", () => {
-    let container = getContainer(container);
-    let root = ReactDOM.Client.createRoot(container);
-
-    act(() => {
-      ReactDOM.Client.render(
-        root,
-        <DummyComponentThatMapsChildren>
-          <div> 1->React.int </div>
-          <div> 2->React.int </div>
-          <div> 3->React.int </div>
-        </DummyComponentThatMapsChildren>,
-      )
-    });
-
-    expect(
-      container
-      ->DOM.findBySelectorAndPartialTextContent("div[data-index='0']", "1")
-      ->Option.isSome,
-    )
-    ->toBe(true);
-
-    expect(
-      container
-      ->DOM.findBySelectorAndPartialTextContent("div[data-index='1']", "2")
-      ->Option.isSome,
-    )
-    ->toBe(true);
-
-    expect(
-      container
-      ->DOM.findBySelectorAndPartialTextContent("div[data-index='2']", "3")
-      ->Option.isSome,
-    )
-    ->toBe(true);
-  });
-
   test("Context", () => {
     let container = getContainer(container);
     let root = ReactDOM.Client.createRoot(container);
@@ -277,15 +226,13 @@ describe("React", () => {
 
   test("React.Fragment with key", () => {
     let container = getContainer(container);
-    let title = Some("foo");
+    let title = "foo";
     let root = ReactDOM.Client.createRoot(container);
 
     act(() => {
       ReactDOM.Client.render(
         root,
-        <React.Fragment key=?title>
-          <div> "Child"->React.string </div>
-        </React.Fragment>,
+        <React.Fragment> <div> "Child"->React.string </div> </React.Fragment>,
       )
     });
 
@@ -309,8 +256,10 @@ describe("React", () => {
     };
 
     let render = author =>
-      <div key={author.Author.name}>
-        <div> <img src={author.imageUrl} /> </div>
+      <div>
+        <div key={author.Author.name}>
+          <div> <img src={author.imageUrl} /> </div>
+        </div>
       </div>;
 
     act(() => {

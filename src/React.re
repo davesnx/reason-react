@@ -300,7 +300,10 @@ module Event = {
   };
 };
 
-type element;
+type elementKeyed;
+type elementNotKeyed;
+type element('a) = 'a;
+
 type componentLike('props, 'return) = 'props => 'return;
 type component('props) = componentLike('props, element);
 
@@ -313,6 +316,10 @@ external array: array(element) => element = "%identity";
 /* this function exists to prepare for making `component` abstract */
 external component: componentLike('props, element) => component('props) =
   "%identity";
+/* external componentKeyed:
+    componentLike('props, elementKeyed) => component('props) =
+    "%identity";
+   */
 
 [@mel.module "react"]
 external createElement: (component('props), 'props) => element =
@@ -327,19 +334,19 @@ external createElementVariadic:
   "createElement";
 
 [@mel.module "react/jsx-runtime"]
-external jsxKeyed:
-  (component('props), 'props, ~key: string=?, unit) => element =
-  "jsx";
-
-[@mel.module "react/jsx-runtime"]
 external jsx: (component('props), 'props) => element = "jsx";
 
 [@mel.module "react/jsx-runtime"]
 external jsxs: (component('props), 'props) => element = "jsxs";
 
 [@mel.module "react/jsx-runtime"]
+external jsxKeyed:
+  (component('props), 'props, ~key: string, unit) => elementKeyed =
+  "jsx";
+
+[@mel.module "react/jsx-runtime"]
 external jsxsKeyed:
-  (component('props), 'props, ~key: string=?, unit) => element =
+  (component('props), 'props, ~key: string, unit) => elementKeyed =
   "jsxs";
 
 [@mel.module "react/jsx-runtime"] external jsxFragment: 'element = "Fragment";
@@ -362,10 +369,10 @@ external createRef: unit => ref(Js.nullable('a)) = "createRef";
 
 module Children = {
   [@mel.module "react"] [@mel.scope "Children"]
-  external map: (element, element => element) => element = "map";
+  external map: (element, element => element) => elementKeyed = "map";
   [@mel.module "react"] [@mel.scope "Children"]
   external mapWithIndex:
-    (element, [@mel.uncurry] ((element, int) => element)) => element =
+    (element, [@mel.uncurry] ((element, int) => element)) => elementKeyed =
     "map";
   [@mel.module "react"] [@mel.scope "Children"]
   external forEach: (element, element => unit) => unit = "forEach";
